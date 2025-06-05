@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: reminders
+  datasource:
+    url: jdbc:postgresql://localhost:5432/remindersdb
+    username: postgres
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
