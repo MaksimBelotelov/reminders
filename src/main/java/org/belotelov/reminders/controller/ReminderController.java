@@ -37,17 +37,22 @@ public class ReminderController {
     }
     
     @GetMapping("/list")
-    public Page<ReminderDto> findAll(@RequestParam int page, 
+    public Page<ReminderDto> read(@RequestParam int page, 
                                      @RequestParam int size) {
         
         return reminderService.findAll(getCurrentUser(), 
                 PageRequest.of(page, size));
     }
     
-//    @PostMapping("/update")
-//    public Reminder update(@RequestParam Long id, 
-//                           @RequestBody ReminderDto dto) {
-//        
-//        return reminderService.update(id, dto, getCurrentUser());
-//    }
+    @PostMapping("/update")
+    public ReminderDto update(@RequestParam Long id, 
+                              @RequestBody ReminderDto dto) {
+        
+        return reminderService.updateReminder(getCurrentUser(), dto, id);
+    }
+    
+    @GetMapping("/delete")
+    public void delete(@RequestParam Long id) {
+        reminderService.delete(id, getCurrentUser());
+    }
 }

@@ -26,13 +26,29 @@ public class ReminderService {
         reminder.setRemind(dto.getRemind());
         reminder.setUser(user);
         
-        reminderRepository.save(reminder);
-        
-        return dto;
+        return toDto(reminderRepository.save(reminder));
     } 
     
     public Page<ReminderDto> findAll(User user, Pageable pageable) {
         return reminderRepository.findByUser(user, pageable).map(this::toDto);
+    }
+    
+    public ReminderDto updateReminder(User user, ReminderDto dto, Long id) {
+        Reminder reminder = reminderRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new IllegalArgumentException("No such reminder"));
+        
+        reminder.setTitle(dto.getTitle());
+        reminder.setDescription(dto.getDescription());
+        reminder.setRemind(dto.getRemind());
+        
+        return toDto(reminderRepository.save(reminder));
+    }
+    
+    public void delete(Long id, User user) {
+        Reminder reminder = reminderRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new IllegalArgumentException("No such reminder"));
+        
+        reminderRepository.delete(reminder);
     }
     
     private ReminderDto toDto(Reminder reminder) {
