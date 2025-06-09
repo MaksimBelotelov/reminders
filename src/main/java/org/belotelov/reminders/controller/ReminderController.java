@@ -1,9 +1,8 @@
 package org.belotelov.reminders.controller;
 
 import org.belotelov.reminders.dto.ReminderDto;
-import org.belotelov.reminders.entity.User;
 import org.belotelov.reminders.service.ReminderService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.belotelov.reminders.service.UserContextService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,29 +17,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReminderController {
     
     private final ReminderService reminderService;
-    
-    @Autowired
-    public ReminderController(ReminderService reminderService) {
-       this.reminderService = reminderService;
+    private final UserContextService userContextService;
+
+    public ReminderController(ReminderService reminderService, UserContextService userContextService) {
+        this.reminderService = reminderService;
+        this.userContextService = userContextService;
     }
-    
-    private User getCurrentUser() {
-        User user1 = new User(1L, "Testuser", "a@mail.com", "TelegaId", null);
-        return user1;
-    }
-    
     
     @PostMapping("/create")
     public ReminderDto create(@RequestBody ReminderDto dto) {
         
-        return reminderService.createReminder(getCurrentUser(), dto);
+        return reminderService.
+                createReminder(userContextService.getCurrentUser(), 
+                               dto);
     }
     
     @GetMapping("/list")
     public Page<ReminderDto> read(@RequestParam int page, 
-                                     @RequestParam int size) {
+                                  @RequestParam int size) {
         
-        return reminderService.findAll(getCurrentUser(), 
+        return reminderService.findAll(userContextService.getCurrentUser(), 
                 PageRequest.of(page, size));
     }
     
@@ -48,11 +44,12 @@ public class ReminderController {
     public ReminderDto update(@RequestParam Long id, 
                               @RequestBody ReminderDto dto) {
         
-        return reminderService.updateReminder(getCurrentUser(), dto, id);
+        return reminderService.updateReminder(userContextService.getCurrentUser(), 
+                dto, id);
     }
     
     @GetMapping("/delete")
     public void delete(@RequestParam Long id) {
-        reminderService.delete(id, getCurrentUser());
+        reminderService.delete(id, userContextService.getCurrentUser());
     }
 }
