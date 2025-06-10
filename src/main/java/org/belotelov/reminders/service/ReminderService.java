@@ -1,5 +1,6 @@
 package org.belotelov.reminders.service;
 
+import java.time.LocalDateTime;
 import lombok.Data;
 import org.belotelov.reminders.dto.ReminderDto;
 import org.belotelov.reminders.entity.Reminder;
@@ -59,5 +60,12 @@ public class ReminderService {
         dto.setRemind(reminder.getRemind());
         
         return dto;
+    }
+    
+    public Page<ReminderDto> findByDates(User currentUser, 
+            LocalDateTime bDate, LocalDateTime eDate, Pageable pageable) {
+        
+        return reminderRepository.findByUserAndRemindBetween(currentUser, 
+                bDate, eDate, pageable).map(this::toDto);
     }
 }

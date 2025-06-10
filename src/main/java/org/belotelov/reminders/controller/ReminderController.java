@@ -1,5 +1,6 @@
 package org.belotelov.reminders.controller;
 
+import java.time.LocalDateTime;
 import org.belotelov.reminders.dto.ReminderDto;
 import org.belotelov.reminders.service.ReminderService;
 import org.belotelov.reminders.service.UserContextService;
@@ -21,7 +22,8 @@ public class ReminderController {
     private final ReminderService reminderService;
     private final UserContextService userContextService;
 
-    public ReminderController(ReminderService reminderService, UserContextService userContextService) {
+    public ReminderController(ReminderService reminderService, 
+                              UserContextService userContextService) {
         this.reminderService = reminderService;
         this.userContextService = userContextService;
     }
@@ -66,10 +68,22 @@ public class ReminderController {
                     size, Sort.by("title"));
             case "date", "time" -> pageable = PageRequest.of(page,
                     size, Sort.by("remind"));
-            default -> throw new IllegalArgumentException("Parameter \"by\" should be \"title\" | \"date\" | \"time\"");
+            default -> throw new IllegalArgumentException("Parameter \"by\" "
+                    + "should be \"title\" | \"date\" | \"time\"");
         }
         
         return reminderService.findAll(userContextService.getCurrentUser(), 
                 pageable);
+    }
+    
+    @GetMapping("/filtr")
+    public Page<ReminderDto> filter(@RequestParam String begin,
+                                    @RequestParam String end) {
+        
+        LocalDateTime bDate = LocalDateTime.parse(begin);
+        LocalDateTime eDate = LocalDateTime.parse(end);
+        
+        return reminderService.findByDates(userContextService.getCurrentUser(),
+                bDate, eDate, PageRequest.ofSize(20));
     }
 }
