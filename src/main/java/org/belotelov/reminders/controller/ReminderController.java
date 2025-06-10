@@ -5,6 +5,8 @@ import org.belotelov.reminders.service.ReminderService;
 import org.belotelov.reminders.service.UserContextService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,5 +53,23 @@ public class ReminderController {
     @GetMapping("/delete")
     public void delete(@RequestParam Long id) {
         reminderService.delete(id, userContextService.getCurrentUser());
+    }
+    
+    @GetMapping("/sort")
+    public Page<ReminderDto> sort(@RequestParam String by,
+                                  @RequestParam int page,
+                                  @RequestParam int size) {
+        
+        Pageable pageable;
+        switch (by.toLowerCase()) {
+            case "title" -> pageable = PageRequest.of(page, 
+                    size, Sort.by("title"));
+            case "date", "time" -> pageable = PageRequest.of(page,
+                    size, Sort.by("remind"));
+            default -> throw new IllegalArgumentException("Parameter \"by\" should be \"title\" | \"date\" | \"time\"");
+        }
+        
+        return reminderService.findAll(userContextService.getCurrentUser(), 
+                pageable);
     }
 }
