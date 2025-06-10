@@ -2,8 +2,9 @@ package org.belotelov.reminders.service;
 
 import org.belotelov.reminders.entity.User;
 import org.belotelov.reminders.repository.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,13 +17,19 @@ public class UserContextService {
     }
     
     public User getCurrentUser() {
-        OAuth2User principal = (OAuth2User) (SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal());
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
         
-        String email = principal.getAttribute("email");
-        String name = principal.getAttribute("name");
+        if(authentication.getPrincipal() instanceof Jwt jwt) {
+            String email = jwt.getClaim("email");
+            String name = jwt.getClaim("name");
+            
+            return userRepository.findByEmail(email)
+                    .orElseGet(() -> 
+                            userRepository.save(new User(null, name, email, "", null)));
+        }
         
-        return userRepository.findByEmail(email)
-                .orElse(userRepository.save(new User(null, name, email, "", null)));        
+        throw new RuntimeException("Unsupported principal type: " + authentication.getPrincipal());
     }
 }
