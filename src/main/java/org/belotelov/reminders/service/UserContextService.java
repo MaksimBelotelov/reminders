@@ -1,5 +1,6 @@
 package org.belotelov.reminders.service;
 
+import org.belotelov.reminders.dto.UpdateUserDto;
 import org.belotelov.reminders.entity.User;
 import org.belotelov.reminders.repository.UserRepository;
 import org.springframework.security.core.Authentication;
@@ -31,5 +32,17 @@ public class UserContextService {
         }
         
         throw new RuntimeException("Unsupported principal type: " + authentication.getPrincipal());
+    }
+    
+    public User updateUser(UpdateUserDto dto) {
+        
+        User user = getCurrentUser();
+        
+        if (dto.getUsername() != null) { 
+            user.setUsername(dto.getUsername()); }
+        if (dto.getTelegramId() != null) { 
+            user.setTelegramId(dto.getTelegramId()); }
+        
+        return userRepository.save(user);
     }
 }
