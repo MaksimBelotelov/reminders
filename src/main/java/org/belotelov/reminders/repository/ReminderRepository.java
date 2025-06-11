@@ -1,6 +1,7 @@
 package org.belotelov.reminders.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.belotelov.reminders.entity.Reminder;
 import org.belotelov.reminders.entity.User;
@@ -14,6 +15,7 @@ public interface ReminderRepository
         extends CrudRepository<Reminder, Long> {
 
     Page<Reminder> findByUser(User user, Pageable pageable);
+    
     Optional<Reminder> findByIdAndUser(Long id, User user);
     
     @Query("""
@@ -26,4 +28,14 @@ public interface ReminderRepository
             @Param(value = "start") LocalDateTime bDate, 
             @Param(value = "end") LocalDateTime eDate, 
             Pageable pageable);
+
+    
+    @Query("""
+           SELECT r FROM Reminder r
+           JOIN FETCH r.user
+           WHERE r.remind > :start AND r.remind <= :end
+           """)
+    List<Reminder> findByRemindBetween(
+            @Param("start") LocalDateTime beginTime, 
+            @Param("end") LocalDateTime endTime);
 }
